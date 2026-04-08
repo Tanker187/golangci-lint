@@ -11,6 +11,9 @@ env:
   # - 1.18rc1 -> 1.18.0-rc.1
   GO_VERSION: '1.24'
 
+permissions:
+  contents: read
+
 jobs:
   update-gha-assets:
     name: "Update GitHub Action assets"
@@ -18,8 +21,13 @@ jobs:
     env:
       GITHUB_TOKEN: ${{ secrets.GOLANGCI_LINT_TOKEN }}
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-go@v5
+      - name: Harden the runner (Audit all outbound calls)
+        uses: step-security/harden-runner@fa2e9d605c4eeb9fcad4c99c224cee0c6c7f3594 # v2.16.0
+        with:
+          egress-policy: audit
+
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+      - uses: actions/setup-go@40f1582b2485089dde7abd97c1529aa768e1baff # v5.6.0
         with:
           go-version: ${{ env.GO_VERSION }}
 
@@ -27,7 +35,7 @@ jobs:
         run: make assets/github-action-config.json
 
       - name: Create Pull Request
-        uses: peter-evans/create-pull-request@v7
+        uses: step-security/create-pull-request@e604d57b37b404d8bb34d152fa905e45d003a895 # v8.1.0
         with:
           base: master
           token: ${{ secrets.GOLANGCI_LINT_TOKEN }}
@@ -41,8 +49,13 @@ jobs:
     env:
       GITHUB_TOKEN: ${{ secrets.GOLANGCI_LINT_TOKEN }}
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-go@v5
+      - name: Harden the runner (Audit all outbound calls)
+        uses: step-security/harden-runner@fa2e9d605c4eeb9fcad4c99c224cee0c6c7f3594 # v2.16.0
+        with:
+          egress-policy: audit
+
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+      - uses: actions/setup-go@40f1582b2485089dde7abd97c1529aa768e1baff # v5.6.0
         with:
           go-version: ${{ env.GO_VERSION }}
 
@@ -56,7 +69,7 @@ jobs:
         run: make website_dump_info
 
       - name: Create Pull Request
-        uses: peter-evans/create-pull-request@v7
+        uses: step-security/create-pull-request@e604d57b37b404d8bb34d152fa905e45d003a895 # v8.1.0
         with:
           base: master
           token: ${{ secrets.GOLANGCI_LINT_TOKEN }}
@@ -71,4 +84,9 @@ jobs:
         os: [ubuntu-latest, macos-latest, windows-latest]
     runs-on: ${{ matrix.os }}
     steps:
+      - name: Harden the runner (Audit all outbound calls)
+        uses: step-security/harden-runner@fa2e9d605c4eeb9fcad4c99c224cee0c6c7f3594 # v2.16.0
+        with:
+          egress-policy: audit
+
       - run: curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/HEAD/install.sh | sh -s -- -b "./install-golangci-lint"
